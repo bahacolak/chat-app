@@ -55,7 +55,6 @@ class ApiController
             $userId = $data['user_id'];
             $content = $data['content'];
     
-            // Check if the group exists before adding the message
             if (!$this->groupModel->groupExists($groupId)) {
                 $errorResponse = $response->withStatus(404)
                     ->withHeader('Content-Type', 'application/json');
@@ -79,47 +78,6 @@ class ApiController
         }
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    // public function addMessage(Request $request, Response $response): Response
-    // {
-    //     try {
-    //         $data = $request->getParsedBody();
-
-    //         if (empty($data['group_id']) || empty($data['user_id']) || empty($data['content'])) {
-    //             $errorResponse = $response->withStatus(400)
-    //                 ->withHeader('Content-Type', 'application/json')
-    //                 ->getBody()
-    //                 ->write(json_encode(['error' => 'group_id, user_id, and content fields are required.']));
-    //             return $errorResponse;
-    //         }
-
-    //         $groupId = $data['group_id'];
-    //         $userId = $data['user_id'];
-    //         $content = $data['content'];
-
-    //         $this->messageModel->addMessage($groupId, $userId, $content);
-
-    //         $responseArray = ['message' => 'New message successfully added.'];
-    //         $response->getBody()->write(json_encode($responseArray));
-    //         return $response->withHeader('Content-Type', 'application/json');
-
-    //     } catch (\PDOException $e) {
-    //         error_log($e->getMessage());
-
-    //         $errorResponse = $response->withStatus(500)
-    //             ->withHeader('Content-Type', 'application/json')
-    //             ->getBody()
-    //             ->write(json_encode(['error' => 'An error occurred while adding the message.']));
-    //         return $errorResponse;
-    //     }
-    // }
 
     public function getMessagesByGroup(Request $request, Response $response, $args): Response
     {
