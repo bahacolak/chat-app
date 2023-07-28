@@ -11,7 +11,7 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 $routes = require __DIR__ . '/../app/Routes/api.php';
-$routes($app);
+$routes($app, $container);
 
 $app->get('/', function ($request, $response) {
     $response->getBody()->write('Hello world!');

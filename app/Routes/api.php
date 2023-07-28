@@ -1,22 +1,44 @@
 <?php
 
+use DI\Container;
 use Slim\App;
 
-return function (App $app) {
-    $container = $app->getContainer();
+return function (App $app, Container $container) {
+    $container->set(PDO::class, function () {
+        $dsn = 'sqlite:' . __DIR__ . '/../chatapp.sqlite';
+        $username = null;
+        $password = null;
+        $options = [
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ];
+        return new PDO($dsn, $username, $password, $options);
+    });
 
-    $pdo = new PDO('sqlite:' . __DIR__ . '/../chatapp.sqlite');
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $container->set(\App\Models\GroupModel::class, function (Container $container) {
+        $pdo = $container->get(PDO::class);
+        return new \App\Models\GroupModel($pdo);
+    });
 
-    $groupModel = new \App\Models\GroupModel($pdo);
-    $messageModel = new \App\Models\MessageModel($pdo);
-    $apiController = new \App\Controllers\ApiController($groupModel, $messageModel);
+    $container->set(\App\Models\MessageModel::class, function (Container $container) {
+        $pdo = $container->get(PDO::class);
+        return new \App\Models\MessageModel($pdo);
+    });
 
-    $app->get('/groups', [$apiController, 'getGroups']);
-    $app->post('/groups', [$apiController, 'createGroup']);
-    $app->post('/messages', [$apiController, 'addMessage']);
-    $app->get('/messages/{group_id}', [$apiController, 'getMessagesByGroup']);
+    $container->set(\App\Controllers\ApiController::class, function (Container $container) {
+        $groupModel = $container->get(\App\Models\GroupModel::class);
+        $messageModel = $container->get(\App\Models\MessageModel::class);
+        return new \App\Controllers\ApiController($groupModel, $messageModel);
+    });
+
+   
+    $app->get('/groups', [\App\Controllers\ApiController::class, 'getGroups']);  
+    $app->post('/groups', [\App\Controllers\ApiController::class, 'createGroup']);  
+    $app->post('/messages', [\App\Controllers\ApiController::class, 'addMessage']); 
+    $app->get('/messages/{group_id}', [\App\Controllers\ApiController::class, 'getMessagesByGroup']);
+    $app->post('/groups/join', [\App\Controllers\ApiController::class, 'joinGroup']);
 };
+
+
 
 
 
