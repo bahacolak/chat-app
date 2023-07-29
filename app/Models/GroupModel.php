@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 class GroupModel
@@ -24,13 +25,29 @@ class GroupModel
 
     public function groupExists($groupId)
     {
-    $sql = 'SELECT COUNT(*) FROM groups WHERE id = :group_id';
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->bindParam(':group_id', $groupId);
-    $stmt->execute();
-    $count = $stmt->fetchColumn();
-    return $count > 0;
+        $sql = 'SELECT * FROM groups WHERE id = :group_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':group_id', $groupId);
+        $stmt->execute();
+        $result = $stmt->fetch();
+
+        return $result !== false && $result !== null;
     }
+
+
+    public function isUserInGroup($groupId, $userId)
+    {
+        $sql = 'SELECT * FROM group_users WHERE group_id = :group_id AND user_id = :user_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':group_id', $groupId);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        $result = $stmt->fetch();
+        return $result !== false;
+    }
+
+
+
 
     public function isUserJoined($groupId, $userId)
     {
@@ -45,11 +62,16 @@ class GroupModel
 
     public function joinGroup($groupId, $userId)
     {
-        $sql = 'INSERT INTO group_users (group_id, user_id) VALUES (:group_id, :user_id)';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':group_id', $groupId);
-        $stmt->bindParam(':user_id', $userId);
-        return $stmt->execute();
+        try {
+            $sql = 'INSERT INTO group_users (group_id, user_id) VALUES (:group_id, :user_id)';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':group_id', $groupId);
+            $stmt->bindParam(':user_id', $userId);
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return false;
+        }
     }
 
 
@@ -61,9 +83,14 @@ class GroupModel
 
     public function createGroup($name)
     {
-        $sql = 'INSERT INTO groups (name) VALUES (:name)';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        return $stmt->execute();
+        try {
+            $sql = 'INSERT INTO groups (name) VALUES (:name)';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':name', $name);
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return false;
+        }
     }
 }

@@ -30,17 +30,11 @@ return function (App $app, Container $container) {
         return new \App\Controllers\ApiController($groupModel, $messageModel);
     });
 
-   
-    $app->get('/groups', [\App\Controllers\ApiController::class, 'getGroups']);  
-    $app->post('/groups', [\App\Controllers\ApiController::class, 'createGroup']);  
-    $app->post('/messages', [\App\Controllers\ApiController::class, 'addMessage']); 
+
+    $app->get('/groups', [\App\Controllers\ApiController::class, 'getGroups']);
+    $app->post('/groups', [\App\Controllers\ApiController::class, 'createGroup']);
+    $app->post('/messages', [\App\Controllers\ApiController::class, 'addMessage']);
     $app->get('/messages/{group_id}', [\App\Controllers\ApiController::class, 'getMessagesByGroup']);
+    $app->get('/messages/{group_id}/{user_id}', [\App\Controllers\ApiController::class, 'getMessagesByGroupAndUser']);
     $app->post('/groups/join', [\App\Controllers\ApiController::class, 'joinGroup']);
 };
-
-
-
-
-
-
-

@@ -19,7 +19,7 @@ class MessageModel
             $stmt->bindParam(':group_id', $groupId);
             $stmt->bindParam(':user_id', $userId);
             $stmt->bindParam(':content', $content);
-            
+
             return $stmt->execute();
         } catch (\PDOException $e) {
             error_log($e->getMessage());
@@ -32,6 +32,16 @@ class MessageModel
         $sql = 'SELECT * FROM messages WHERE group_id = :group_id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':group_id', $groupId);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function getMessagesByGroupAndUser($groupId, $userId)
+    {
+        $sql = 'SELECT * FROM messages WHERE group_id = :group_id AND user_id = :user_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':group_id', $groupId);
+        $stmt->bindParam(':user_id', $userId);
         $stmt->execute();
         return $stmt->fetchAll();
     }
