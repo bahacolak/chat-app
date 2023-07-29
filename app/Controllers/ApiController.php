@@ -130,6 +130,13 @@ class ApiController
             return $errorResponse;
         }
 
+        if (!$this->groupModel->isUserMessageInGroup($groupId, $userId)) {
+            $errorResponse = $response->withStatus(404)//HATA KODUNA BAK
+                ->withHeader('Content-Type', 'application/json');
+            $errorResponse->getBody()->write(json_encode(['error' => 'User not found in the group.']));
+            return $errorResponse;
+        }
+
         $messages = $this->messageModel->getMessagesByGroupAndUser($groupId, $userId);
 
         $response->getBody()->write(json_encode($messages));

@@ -46,6 +46,16 @@ class GroupModel
         return $result !== false;
     }
 
+    public function isUserMessageInGroup($groupId, $userId)
+    {
+        $sql = 'SELECT * FROM messages WHERE group_id = :group_id AND user_id = :user_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':group_id', $groupId);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        $result = $stmt->fetch();
+        return $result !== false;
+    }
 
 
 
