@@ -33,6 +33,7 @@ class GroupController
         }
 
         $name = $data['name'];
+        //Multiple groups can exist with the same name.
 
         $this->groupService->createGroup($name);
 
