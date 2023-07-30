@@ -28,7 +28,6 @@ return function (App $app, Container $container) {
         return new \App\Models\MessageModel($pdo);
     });
 
-    // GroupService bağımlılığını tanımlayın
     $container->set(\App\Services\GroupService::class, function (Container $container) {
         $groupModel = $container->get(GroupModel::class);
         return new GroupService($groupModel);
