@@ -2,6 +2,10 @@
 
 use DI\Container;
 use Slim\App;
+use App\Services\GroupService;
+use App\Services\MessageService;
+use App\Models\GroupModel;
+use App\Models\MessageModel;
 
 return function (App $app, Container $container) {
     $container->set(PDO::class, function () {
@@ -24,18 +28,19 @@ return function (App $app, Container $container) {
         return new \App\Models\MessageModel($pdo);
     });
 
-    $container->set(\App\Controllers\GroupController::class, function (Container $container) {
-        $groupModel = $container->get(\App\Models\GroupModel::class);
-        return new \App\Controllers\GroupController($groupModel);
+    // GroupService bağımlılığını tanımlayın
+    $container->set(\App\Services\GroupService::class, function (Container $container) {
+        $groupModel = $container->get(GroupModel::class);
+        return new GroupService($groupModel);
+    });
+    
+    $container->set(\App\Services\MessageService::class, function (Container $container) {
+        $messageModel = $container->get(MessageModel::class);
+        $groupModel = $container->get(GroupModel::class);
+        return new MessageService($messageModel, $groupModel);
     });
 
-    $container->set(\App\Controllers\MessageController::class, function (Container $container) {
-        $messageModel = $container->get(\App\Models\MessageModel::class);
-        $groupModel = $container->get(\App\Models\GroupModel::class);
-        return new \App\Controllers\MessageController($messageModel, $groupModel);
-    });
-
-    $app->get('/groups', [\App\Controllers\GroupController::class, 'getGroups']);
+    $app->get('/groups', [\App\Controllers\GroupController::class, 'getAllGroups']);
     $app->post('/groups', [\App\Controllers\GroupController::class, 'createGroup']);
     $app->post('/messages', [\App\Controllers\MessageController::class, 'addMessage']);
     $app->get('/messages/{group_id}', [\App\Controllers\MessageController::class, 'getMessagesByGroup']);
