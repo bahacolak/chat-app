@@ -3,6 +3,7 @@
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
+// require_once 'UserTableSeeder.php';
 
 $containerBuilder = new \DI\ContainerBuilder();
 $container = $containerBuilder->build();
