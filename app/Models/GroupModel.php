@@ -31,7 +31,7 @@ class GroupModel
         $stmt->execute();
         $result = $stmt->fetch();
 
-        return $result !== false && $result !== null;
+        return $result !== false;
     }
 
 

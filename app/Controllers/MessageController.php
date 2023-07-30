@@ -18,19 +18,19 @@ class MessageController
         $this->groupService = $groupService;
     }
 
-    public function addMessage(Request $request, Response $response): Response
+    public function addMessage(Request $request, Response $response, array $args): Response
     {
         $data = $request->getParsedBody();
 
-        if (empty($data['group_id']) || empty($data['user_id']) || empty($data['content'])) {
+        if (empty($data['content'])) {
             $errorResponse = $response->withStatus(400)
                 ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'group_id, user_id, and content fields are required.']));
+            $errorResponse->getBody()->write(json_encode(['error' => 'Content field is required.']));
             return $errorResponse;
         }
 
-        $groupId = $data['group_id'];
-        $userId = $data['user_id'];
+        $groupId = $args['group_id'];
+        $userId = $args['user_id'];
         $content = $data['content'];
 
         if (!$this->groupService->groupExists($groupId)) {
@@ -58,13 +58,6 @@ class MessageController
     {
         $groupId = $args['group_id'];
 
-        if (empty($groupId)) {
-            $errorResponse = $response->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'group_id is required.']));
-            return $errorResponse;
-        }
-
         if (!$this->groupService->groupExists($groupId)) {
             $errorResponse = $response->withStatus(404)
                 ->withHeader('Content-Type', 'application/json');
@@ -83,12 +76,6 @@ class MessageController
         $groupId = $args['group_id'];
         $userId = $args['user_id'];
 
-        if (empty($groupId) || empty($userId)) {
-            $errorResponse = $response->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'group_id and user_id are required.']));
-            return $errorResponse;
-        }
 
         if (!$this->groupService->groupExists($groupId)) {
             $errorResponse = $response->withStatus(404)

@@ -49,5 +49,3 @@ class GroupService
         return $this->groupModel->isUserMessageInGroup($groupId, $userId);
     }
 }
-
-

@@ -32,7 +32,7 @@ return function (App $app, Container $container) {
         $groupModel = $container->get(GroupModel::class);
         return new GroupService($groupModel);
     });
-    
+
     $container->set(\App\Services\MessageService::class, function (Container $container) {
         $messageModel = $container->get(MessageModel::class);
         $groupModel = $container->get(GroupModel::class);
@@ -41,7 +41,7 @@ return function (App $app, Container $container) {
 
     $app->get('/groups', [\App\Controllers\GroupController::class, 'getAllGroups']);
     $app->post('/groups', [\App\Controllers\GroupController::class, 'createGroup']);
-    $app->post('/messages', [\App\Controllers\MessageController::class, 'addMessage']);
+    $app->post('/messages/{group_id}/{user_id}', [\App\Controllers\MessageController::class, 'addMessage']);
     $app->get('/messages/{group_id}', [\App\Controllers\MessageController::class, 'getMessagesByGroup']);
     $app->get('/messages/{group_id}/{user_id}', [\App\Controllers\MessageController::class, 'getMessagesByGroupAndUser']);
     $app->post('/groups/join', [\App\Controllers\GroupController::class, 'joinGroup']);
