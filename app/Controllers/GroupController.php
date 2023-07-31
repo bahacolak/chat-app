@@ -5,6 +5,7 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Services\GroupService;
+use App\Services\ResponseService;
 
 class GroupController
 {
@@ -18,18 +19,14 @@ class GroupController
     public function getAllGroups(Request $request, Response $response): Response
     {
         $groups = $this->groupService->getAllGroups();
-        $response->getBody()->write(json_encode($groups));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, $groups);
     }
 
     public function createGroup(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
         if (empty($data['name'])) {
-            $errorResponse = $response->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Group name is required.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 400, 'Group name is required.');
         }
 
         $name = $data['name'];
@@ -37,9 +34,7 @@ class GroupController
 
         $this->groupService->createGroup($name);
 
-        $responseArray = ['message' => 'New group has been successfully created.'];
-        $response->getBody()->write(json_encode($responseArray));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, ['message' => 'New group has been successfully created.']);
     }
 
     public function joinGroup(Request $request, Response $response): Response
@@ -49,30 +44,19 @@ class GroupController
         $userId = $data['user_id'];
 
         if (empty($groupId) || empty($userId)) {
-            $errorResponse = $response->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Invalid group_id or user_id.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 400, 'Invalid group_id or user_id.');
         }
 
         if (!$this->groupService->groupExists($groupId)) {
-            $errorResponse = $response->withStatus(404)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Group not found.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 404, 'Group not found.');
         }
 
         if ($this->groupService->isUserJoined($groupId, $userId)) {
-            $errorResponse = $response->withStatus(409)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'User already joined the group.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 409, 'User already joined the group.');
         }
 
         $this->groupService->joinGroup($groupId, $userId);
 
-        $responseArray = ['message' => 'User successfully joined the group.'];
-        $response->getBody()->write(json_encode($responseArray));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, ['message' => 'User successfully joined the group.']);
     }
 }

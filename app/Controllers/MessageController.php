@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Services\MessageService;
 use App\Services\GroupService;
+use App\Services\ResponseService;
 
 class MessageController
 {
@@ -23,10 +24,7 @@ class MessageController
         $data = $request->getParsedBody();
 
         if (empty($data['content'])) {
-            $errorResponse = $response->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Content field is required.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 400, 'Content field is required.'); // ResponseService'yi kullandık
         }
 
         $groupId = $args['group_id'];
@@ -34,24 +32,17 @@ class MessageController
         $content = $data['content'];
 
         if (!$this->groupService->groupExists($groupId)) {
-            $errorResponse = $response->withStatus(404)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Group not found.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 404, 'Group not found.'); // ResponseService'yi kullandık
         }
 
         if (!$this->groupService->isUserInGroup($groupId, $userId)) {
-            $errorResponse = $response->withStatus(403) // 403 Forbidden
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'User is not a member of the group.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 403, 'User is not a member of the group.'); // ResponseService'yi kullandık
         }
 
         $this->messageService->addMessage($groupId, $userId, $content);
 
         $responseArray = ['message' => 'New message has been successfully added.'];
-        $response->getBody()->write(json_encode($responseArray));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, $responseArray);
     }
 
     public function getMessagesByGroup(Request $request, Response $response, array $args): Response
@@ -59,16 +50,12 @@ class MessageController
         $groupId = $args['group_id'];
 
         if (!$this->groupService->groupExists($groupId)) {
-            $errorResponse = $response->withStatus(404)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Group not found.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 404, 'Group not found.');
         }
 
         $messages = $this->messageService->getMessagesByGroup($groupId);
 
-        $response->getBody()->write(json_encode($messages));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, $messages);
     }
 
     public function getMessagesByGroupAndUser(Request $request, Response $response, array $args): Response
@@ -78,22 +65,15 @@ class MessageController
 
 
         if (!$this->groupService->groupExists($groupId)) {
-            $errorResponse = $response->withStatus(404)
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'Group not found.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 404, 'Group not found.');
         }
 
         if (!$this->groupService->isUserMessageInGroup($groupId, $userId)) {
-            $errorResponse = $response->withStatus(404) // 404 Not Found
-                ->withHeader('Content-Type', 'application/json');
-            $errorResponse->getBody()->write(json_encode(['error' => 'User messages not found in the group.']));
-            return $errorResponse;
+            return ResponseService::sendError($response, 404, 'User messages not found in the group.'); 
         }
 
         $messages = $this->messageService->getMessagesByGroupAndUser($groupId, $userId);
 
-        $response->getBody()->write(json_encode($messages));
-        return $response->withHeader('Content-Type', 'application/json');
+        return ResponseService::sendSuccess($response, $messages);
     }
 }

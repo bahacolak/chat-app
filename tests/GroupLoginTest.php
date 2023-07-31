@@ -10,44 +10,43 @@ use App\Controllers\GroupController;
 use App\Services\GroupService;
 use App\Models\GroupModel;
 
-
 class GroupLoginTest extends TestCase
 {
     protected static $pdo;
     protected $app;
 
     public static function setUpBeforeClass(): void
-{
-    self::$pdo = new PDO('sqlite::memory:');
-    self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    {
+        self::$pdo = new PDO('sqlite::memory:');
+        self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    self::$pdo->exec("
-        CREATE TABLE groups (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL
-        );
+        self::$pdo->exec("
+            CREATE TABLE groups (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
 
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL
-        );
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
 
-        CREATE TABLE group_users (
-            group_id INTEGER,
-            user_id INTEGER,
-            FOREIGN KEY (group_id) REFERENCES groups(id),
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        );
-    ");
+            CREATE TABLE group_users (
+                group_id INTEGER,
+                user_id INTEGER,
+                FOREIGN KEY (group_id) REFERENCES groups(id),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+        ");
 
-    self::$pdo->exec("
-        INSERT INTO groups (name) VALUES ('Group 1');
-        INSERT INTO groups (name) VALUES ('Group 2');
+        self::$pdo->exec("
+            INSERT INTO groups (name) VALUES ('Group 1');
+            INSERT INTO groups (name) VALUES ('Group 2');
 
-        INSERT INTO users (name) VALUES ('User 1');
-        INSERT INTO users (name) VALUES ('User 2');
-    ");
-}
+            INSERT INTO users (name) VALUES ('User 1');
+            INSERT INTO users (name) VALUES ('User 2');
+        ");
+    }
 
     public function setUp(): void
     {
@@ -73,14 +72,8 @@ class GroupLoginTest extends TestCase
 
         $response = $this->app->handle($request);
 
-        $expectedResponse = ['message' => 'User successfully joined the group.'];
+        $expectedResponse = ['success' => true, 'data' => ['message' => 'User successfully joined the group.']];
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(json_encode($expectedResponse), (string) $response->getBody());
     }
 }
-
-
-
-
-
-

@@ -16,25 +16,25 @@ class GroupControllerTest extends TestCase
     }
 
     public function testCreateGroup(): void
-{
-    $controller = $this->createGroupController();
+    {
+        $controller = $this->createGroupController();
 
-    $requestData = [
-        'name' => 'Test Group',
-    ];
-    $request = $this->createRequest('POST', '/groups', $requestData);
+        $requestData = [
+            'name' => '', // Test with an empty group name to trigger the error
+        ];
+        $request = $this->createRequest('POST', '/groups', $requestData);
 
-    $responseFactory = new ResponseFactory();
-    $response = $responseFactory->createResponse();
+        $responseFactory = new ResponseFactory();
+        $response = $responseFactory->createResponse();
 
-    $result = $controller->createGroup($request, $response);
+        $result = $controller->createGroup($request, $response);
 
-    $this->assertSame(400, $result->getStatusCode());
-    $this->assertJsonStringEqualsJsonString(
-        json_encode(['error' => 'Group name is required.']),
-        (string)$result->getBody()
-    );
-}
+        $this->assertSame(400, $result->getStatusCode());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['status' => 'error', 'message' => 'Group name is required.']),
+            (string)$result->getBody()
+        );
+    }
 
     protected function createRequest(string $method, string $uri, array $data = []): ServerRequestInterface
     {
@@ -42,6 +42,7 @@ class GroupControllerTest extends TestCase
         return $requestFactory->createServerRequest($method, $uri, $data);
     }
 }
+
 
 
 
