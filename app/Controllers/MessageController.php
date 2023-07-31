@@ -24,7 +24,7 @@ class MessageController
         $data = $request->getParsedBody();
 
         if (empty($data['content'])) {
-            return ResponseService::sendError($response, 400, 'Content field is required.'); // ResponseService'yi kullandık
+            return ResponseService::sendError($response, 400, 'Content field is required.');
         }
 
         $groupId = $args['group_id'];
@@ -32,11 +32,11 @@ class MessageController
         $content = $data['content'];
 
         if (!$this->groupService->groupExists($groupId)) {
-            return ResponseService::sendError($response, 404, 'Group not found.'); // ResponseService'yi kullandık
+            return ResponseService::sendError($response, 404, 'Group not found.'); 
         }
 
         if (!$this->groupService->isUserInGroup($groupId, $userId)) {
-            return ResponseService::sendError($response, 403, 'User is not a member of the group.'); // ResponseService'yi kullandık
+            return ResponseService::sendError($response, 403, 'User is not a member of the group.'); 
         }
 
         $this->messageService->addMessage($groupId, $userId, $content);

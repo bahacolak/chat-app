@@ -20,7 +20,7 @@ class GroupControllerTest extends TestCase
         $controller = $this->createGroupController();
 
         $requestData = [
-            'name' => '', // Test with an empty group name to trigger the error
+            'name' => '',
         ];
         $request = $this->createRequest('POST', '/groups', $requestData);
 
